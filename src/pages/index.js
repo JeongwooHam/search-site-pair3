@@ -1,13 +1,16 @@
+import SearchBar from "components/search-bar";
 import { styled } from "styled-components";
-import SearchBar from "./components/search-bar";
+
 const MainPage = () => {
 	return (
-		<S.Container>
-			<S.Title>
-				What are you <span>searching</span> for?
-			</S.Title>
-			<SearchBar />
-		</S.Container>
+		<>
+			<S.Container>
+				<S.Title>
+					What are you <span>searching</span> for?
+				</S.Title>
+				<SearchBar />
+			</S.Container>
+		</>
 	);
 };
 
