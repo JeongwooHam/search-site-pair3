@@ -4,6 +4,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { useWordList } from "context/targetwords";
+import debounce from "lodash.debounce";
 
 const SearchBar = () => {
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -57,6 +58,20 @@ const SearchBar = () => {
 		setTargetWords([]);
 	};
 
+	// DbBounce 기능 구현
+	const [searchText, setSearchText] = useState("");
+	let timer;
+
+	const handleInputChange = debounce(e => {
+		if (timer) {
+			clearTimeout(timer);
+		}
+		setSearchText(e.target.value); // 검색 텍스트 업데이트
+		timer = setTimeout(() => {
+			console.log("여기에 ajax 요청", e.target.value);
+		});
+	}, 200);
+
 	return (
 		<>
 			<S.Container>
@@ -64,7 +79,7 @@ const SearchBar = () => {
 					<input
 						placeholder="SEARCH..."
 						onClick={() => setIsHistoryOpen(true)}
-						onChange={handleInputData}
+						onChange={(handleInputChange, handleInputData)}
 						value={text}
 					/>
 					<IoIosCloseCircle
