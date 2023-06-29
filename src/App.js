@@ -1,6 +1,8 @@
+import GlobalStyles from "style/global";
 import "./App.css";
+import MainPage from "pages";
 import { useEffect, useState } from "react";
-import { axiosInstance } from "./apis/@core";
+import { axiosInstance } from "apis/@core";
 
 function App() {
 	const [searchedData, setSearchedData] = useState([]);
@@ -19,11 +21,10 @@ function App() {
 	}, []);
 
 	return (
-		<div className="App">
-			{searchedData.map(data => (
-				<div>{data}</div>
-			))}
-		</div>
+		<>
+			<GlobalStyles />
+			<MainPage />
+		</>
 	);
 }
 
