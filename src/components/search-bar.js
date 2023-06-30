@@ -4,7 +4,6 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { useWordList } from "context/targetwords";
-import debounce from "lodash.debounce";
 
 const SearchBar = () => {
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -13,10 +12,30 @@ const SearchBar = () => {
 		setIsHistoryOpen(false);
 	};
 
-	// change 이벤트 함수
+	// input 창에 입력된 값
 	const [inputData, setInputData] = useState("");
-	const handleInputData = e => {
-		setText(e.target.value);
+
+	// DeBounce 기능
+
+	// lodash 사용한 코드
+	// const handleInputChange = debounce(e => {
+	// 	console.log("axios 요청", e.target.value);
+	// 	setInputData(e.target.value);
+	// }, 200);
+
+	// 직접 구현한 코드
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			console.log("axios 요청", inputData);
+		}, 200);
+
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [inputData]);
+
+	// input 창에 보이는 글자 설정
+	const handleInputChange = e => {
 		setInputData(e.target.value);
 	};
 
@@ -36,16 +55,13 @@ const SearchBar = () => {
 			}
 		}
 		setInputData("");
-		setText("");
+		// setText("");
 	};
 
 	// 검색 기록 배열 확인용
 	useEffect(() => {
 		console.log(targetWords);
 	}, [targetWords]);
-
-	// input 창에 보이는 글자 설정
-	const [text, setText] = useState("");
 
 	// 최근 검색어 개별 삭제
 	const handleDeleteEachWord = target => {
@@ -58,20 +74,6 @@ const SearchBar = () => {
 		setTargetWords([]);
 	};
 
-	// DbBounce 기능 구현
-	const [searchText, setSearchText] = useState("");
-	let timer;
-
-	const handleInputChange = debounce(e => {
-		if (timer) {
-			clearTimeout(timer);
-		}
-		setSearchText(e.target.value); // 검색 텍스트 업데이트
-		timer = setTimeout(() => {
-			console.log("여기에 ajax 요청", e.target.value);
-		});
-	}, 200);
-
 	return (
 		<>
 			<S.Container>
@@ -79,8 +81,8 @@ const SearchBar = () => {
 					<input
 						placeholder="SEARCH..."
 						onClick={() => setIsHistoryOpen(true)}
-						onChange={(handleInputChange, handleInputData)}
-						value={text}
+						onChange={handleInputChange}
+						value={inputData}
 					/>
 					<IoIosCloseCircle
 						className="close-icon"
