@@ -25,7 +25,7 @@ const SearchBar = () => {
 	// change 이벤트 함수
 	const [inputData, setInputData] = useState("");
 
-	const handleInputData = async e => {
+	const handleInputChange = async e => {
 		setInputData(e.target.value);
 		if (e.target.value) {
 			// 입력 값이 있다면
@@ -101,7 +101,7 @@ const SearchBar = () => {
 						<input
 							placeholder="SEARCH..."
 							onClick={() => setIsHistoryOpen(true)}
-							onChange={handleInputData}
+							onChange={handleInputChange}
 							value={inputData}
 						/>
 						<IoIosCloseCircle
@@ -127,7 +127,7 @@ const SearchBar = () => {
 						<input
 							placeholder="SEARCH..."
 							onClick={() => setIsHistoryOpen(true)}
-							onChange={handleInputData}
+							onChange={handleInputChange}
 							value={inputData}
 						/>
 						<IoIosCloseCircle
