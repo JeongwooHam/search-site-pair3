@@ -28,6 +28,7 @@ const SearchBar = () => {
 	const handleInputData = async e => {
 		setInputData(e.target.value);
 		if (e.target.value) {
+			// 입력 값이 있다면
 			// 검색 결과를 불러오기
 			await fetchSearchResults(e.target.value);
 			// 검색 결과를 보여주기.
@@ -41,6 +42,16 @@ const SearchBar = () => {
 			setIsHistoryOpen(true);
 		}
 	};
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			console.log("axios 요청", inputData);
+		}, 200);
+
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [inputData]);
 
 	// submit 이벤트 함수
 	const { targetWords, setTargetWords } = useWordList();
@@ -233,7 +244,6 @@ const EachWord = styled.li`
 
 const SearchResults = styled.div`
 	width: 645px;
-	height: 300px;
 	background-color: white;
 	margin: -40px auto;
 	padding: 20px;
