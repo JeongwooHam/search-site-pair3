@@ -95,6 +95,9 @@ const SearchBar = () => {
 		return text.replace(regex, "<span class='highlight'>$1</span>");
 	};
 
+	// 완전히 일치하는 단어가 있으면 보여주기
+	const perfectMatch = searchedData.find(word => word === inputData);
+
 	if (showSearchResults) {
 		return (
 			<>
@@ -117,15 +120,24 @@ const SearchBar = () => {
 				</S.Container>
 				{isContainerOpen && (
 					<S.SearchResults>
+						{perfectMatch && (
+							<S.OneSearched>
+								<span className="highlight">{perfectMatch}</span>
+							</S.OneSearched>
+						)}
+						<div>
+							<span>추천 검색어</span>
+						</div>
+						<hr />
 						{searchedData &&
 							searchedData.map((data, index) => (
-								<OneSearched key={index}>
+								<S.OneSearched key={index}>
 									<span
 										dangerouslySetInnerHTML={{
 											__html: highlightMatchedText(data, inputData),
 										}}
 									/>
-								</OneSearched>
+								</S.OneSearched>
 							))}
 					</S.SearchResults>
 				)}
@@ -159,7 +171,7 @@ const SearchBar = () => {
 							<span className="deleteAll" onClick={handleDeleteEveryWord}>
 								전체 삭제
 							</span>
-						</div>{" "}
+						</div>
 						<hr />
 						<ul>
 							{targetWords.map((word, i) => (
@@ -313,4 +325,5 @@ const S = {
 	SearchHistory,
 	EachWord,
 	SearchResults,
+	OneSearched,
 };
