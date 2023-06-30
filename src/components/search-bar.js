@@ -93,6 +93,12 @@ const SearchBar = () => {
 		setTargetWords([]);
 	};
 
+	// 텍스트 하이라이트
+	const highlightMatchedText = (text, keyword) => {
+		const regex = new RegExp(`(${keyword})`, "gi");
+		return text.replace(regex, "<span class='highlight'>$1</span>");
+	};
+
 	if (showSearchResults) {
 		return (
 			<>
@@ -115,7 +121,15 @@ const SearchBar = () => {
 				</S.Container>
 				<S.SearchResults>
 					{searchedData &&
-						searchedData.map(data => <OneSerched>{data}</OneSerched>)}
+						searchedData.map((data, index) => (
+							<OneSearched key={index}>
+								<span
+									dangerouslySetInnerHTML={{
+										__html: highlightMatchedText(data, inputData),
+									}}
+								/>
+							</OneSearched>
+						))}
 				</S.SearchResults>
 			</>
 		);
@@ -258,13 +272,16 @@ const SearchResults = styled.div`
 	}
 `;
 
-const OneSerched = styled.div`
+const OneSearched = styled.div`
 	font-size: 24px;
 	font-weight: 100;
 	margin: 20px 0;
 	width: 600px;
 	display: flex;
 	justify-content: space-between;
+	span.highlight {
+		background-color: #ecdbf4;
+	}
 `;
 
 const S = {
