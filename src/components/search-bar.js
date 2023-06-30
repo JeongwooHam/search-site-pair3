@@ -7,11 +7,7 @@ import { useWordList } from "context/targetwords";
 import { getSearchedData } from "apis/search";
 
 const SearchBar = () => {
-	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-	// 검색어 창 닫힘 버튼
-	const handleCloseHistory = () => {
-		setIsHistoryOpen(false);
-	};
+	const [isContainerOpen, setIsContainerOpen] = useState(false);
 
 	//검색결과 불러오는 함수
 
@@ -27,25 +23,25 @@ const SearchBar = () => {
 
 	const handleInputChange = async e => {
 		setInputData(e.target.value);
-		if (e.target.value) {
-			// 입력 값이 있다면
-			// 검색 결과를 불러오기
-			await fetchSearchResults(e.target.value);
-			// 검색 결과를 보여주기.
-			setShowSearchResults(true);
-			// 최근 검색 기록을 숨기기
-			setIsHistoryOpen(false);
-		} else {
-			// 검색 결과를 숨김
-			setShowSearchResults(false);
-			// 최근 검색 기록을 보여줌
-			setIsHistoryOpen(true);
-		}
 	};
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			console.log("axios 요청", inputData);
+			if (inputData) {
+				// 입력 값이 있다면
+				// 검색 결과를 불러오기
+				fetchSearchResults(inputData);
+				// 검색 결과를 보여주기.
+				setShowSearchResults(true);
+				// 최근 검색 기록을 숨기기
+				// setIsHistoryOpen(false);
+			} else {
+				// 검색 결과를 숨김
+				setShowSearchResults(false);
+				// 최근 검색 기록을 보여줌
+				// setIsHistoryOpen(true);
+			}
 		}, 200);
 
 		return () => {
@@ -59,7 +55,11 @@ const SearchBar = () => {
 	const handleTargetWords = async e => {
 		e.preventDefault();
 		if (inputData) {
-			const newTargetWords = [...targetWords];
+			let newTargetWords = [...targetWords];
+			// 입력받은 값이 예전에 검색된 적이 있다면 중복하여 추가하지 않고 맨 앞으로 이동시키기
+			if (newTargetWords.includes(inputData)) {
+				newTargetWords = newTargetWords.filter(word => word !== inputData);
+			}
 			newTargetWords.unshift(inputData);
 			if (newTargetWords.length >= 5) {
 				setTargetWords(newTargetWords.slice(0, 5));
@@ -67,20 +67,16 @@ const SearchBar = () => {
 				setTargetWords(newTargetWords);
 			}
 			setInputData("");
-			setText("");
 		}
 		// 검색 완료 후에는 검색 결과를 숨기고 최근 검색 기록을 보여줌
 		setShowSearchResults(false);
-		setIsHistoryOpen(true);
+		// setIsHistoryOpen(true);
 	};
 
 	// 검색 기록 배열 확인용
 	useEffect(() => {
 		console.log(targetWords);
 	}, [targetWords]);
-
-	// input 창에 보이는 글자 설정
-	const [text, setText] = useState("");
 
 	// 최근 검색어 개별 삭제
 	const handleDeleteEachWord = target => {
@@ -106,31 +102,33 @@ const SearchBar = () => {
 					<form name="value">
 						<input
 							placeholder="SEARCH..."
-							onClick={() => setIsHistoryOpen(true)}
+							onClick={() => setIsContainerOpen(true)}
 							onChange={handleInputChange}
 							value={inputData}
 						/>
 						<IoIosCloseCircle
 							className="close-icon"
-							onClick={() => setIsHistoryOpen(false)}
+							onClick={() => setIsContainerOpen(false)}
 						/>
 						<button onClick={handleTargetWords}>
 							<BsFillSearchHeartFill className="search-icon" />
 						</button>
 					</form>
 				</S.Container>
-				<S.SearchResults>
-					{searchedData &&
-						searchedData.map((data, index) => (
-							<OneSearched key={index}>
-								<span
-									dangerouslySetInnerHTML={{
-										__html: highlightMatchedText(data, inputData),
-									}}
-								/>
-							</OneSearched>
-						))}
-				</S.SearchResults>
+				{isContainerOpen && (
+					<S.SearchResults>
+						{searchedData &&
+							searchedData.map((data, index) => (
+								<OneSearched key={index}>
+									<span
+										dangerouslySetInnerHTML={{
+											__html: highlightMatchedText(data, inputData),
+										}}
+									/>
+								</OneSearched>
+							))}
+					</S.SearchResults>
+				)}
 			</>
 		);
 	} else {
@@ -140,20 +138,21 @@ const SearchBar = () => {
 					<form name="value">
 						<input
 							placeholder="SEARCH..."
-							onClick={() => setIsHistoryOpen(true)}
+							onClick={() => setIsContainerOpen(true)}
 							onChange={handleInputChange}
 							value={inputData}
 						/>
 						<IoIosCloseCircle
 							className="close-icon"
-							onClick={() => setIsHistoryOpen(false)}
+							onClick={() => setIsContainerOpen(false)}
 						/>
 						<button onClick={handleTargetWords}>
 							<BsFillSearchHeartFill className="search-icon" />
 						</button>
 					</form>
 				</S.Container>
-				{isHistoryOpen && (
+
+				{isContainerOpen && (
 					<S.SearchHistory>
 						<div>
 							<span>최근 검색어</span>
@@ -220,6 +219,27 @@ const Container = styled.div`
 			width: 30px;
 			height: 30px;
 			color: #a252c8;
+			:hover {
+				opacity: 1;
+				-webkit-animation: flash 1.5s;
+				animation: flash 1.5s;
+			}
+			@-webkit-keyframes flash {
+				0% {
+					opacity: 0.4;
+				}
+				100% {
+					opacity: 1;
+				}
+			}
+			@keyframes flash {
+				0% {
+					opacity: 0.4;
+				}
+				100% {
+					opacity: 1;
+				}
+			}
 		}
 	}
 `;
@@ -237,6 +257,10 @@ const SearchHistory = styled.div`
 		.deleteAll {
 			font-size: 14px;
 			color: gray;
+			&:hover {
+				color: #a252c8;
+				font-weight: bold;
+			}
 		}
 	}
 `;
