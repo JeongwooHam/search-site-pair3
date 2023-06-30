@@ -4,6 +4,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { useWordList } from "context/targetwords";
+import { getSearchedData } from "apis/search";
 
 const SearchBar = () => {
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -12,56 +13,63 @@ const SearchBar = () => {
 		setIsHistoryOpen(false);
 	};
 
-	// input 창에 입력된 값
+	//검색결과 불러오는 함수
+
+	const [searchedData, setSearchedData] = useState([]);
+	const fetchSearchResults = async query => {
+		const data = await getSearchedData(query);
+		setSearchedData(data);
+		console.log(data);
+	};
+
+	// change 이벤트 함수
 	const [inputData, setInputData] = useState("");
 
-	// DeBounce 기능
-
-	// lodash 사용한 코드
-	// const handleInputChange = debounce(e => {
-	// 	console.log("axios 요청", e.target.value);
-	// 	setInputData(e.target.value);
-	// }, 200);
-
-	// 직접 구현한 코드
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			console.log("axios 요청", inputData);
-		}, 200);
-
-		return () => {
-			clearTimeout(timer);
-		};
-	}, [inputData]);
-
-	// input 창에 보이는 글자 설정
-	const handleInputChange = e => {
+	const handleInputData = async e => {
 		setInputData(e.target.value);
+		if (e.target.value) {
+			// 검색 결과를 불러오기
+			await fetchSearchResults(e.target.value);
+			// 검색 결과를 보여주기.
+			setShowSearchResults(true);
+			// 최근 검색 기록을 숨기기
+			setIsHistoryOpen(false);
+		} else {
+			// 검색 결과를 숨김
+			setShowSearchResults(false);
+			// 최근 검색 기록을 보여줌
+			setIsHistoryOpen(true);
+		}
 	};
 
 	// submit 이벤트 함수
 	const { targetWords, setTargetWords } = useWordList();
-	const handleTargetWords = e => {
+	const [showSearchResults, setShowSearchResults] = useState(false); //검색결과 상태
+	const handleTargetWords = async e => {
 		e.preventDefault();
-		// 검색 값 있을 때만
 		if (inputData) {
 			const newTargetWords = [...targetWords];
 			newTargetWords.unshift(inputData);
-			// 최근 검색어 배열 관리
 			if (newTargetWords.length >= 5) {
 				setTargetWords(newTargetWords.slice(0, 5));
 			} else {
 				setTargetWords(newTargetWords);
 			}
+			setInputData("");
+			setText("");
 		}
-		setInputData("");
-		// setText("");
+		// 검색 완료 후에는 검색 결과를 숨기고 최근 검색 기록을 보여줌
+		setShowSearchResults(false);
+		setIsHistoryOpen(true);
 	};
 
 	// 검색 기록 배열 확인용
 	useEffect(() => {
 		console.log(targetWords);
 	}, [targetWords]);
+
+	// input 창에 보이는 글자 설정
+	const [text, setText] = useState("");
 
 	// 최근 검색어 개별 삭제
 	const handleDeleteEachWord = target => {
@@ -74,49 +82,77 @@ const SearchBar = () => {
 		setTargetWords([]);
 	};
 
-	return (
-		<>
-			<S.Container>
-				<form name="value">
-					<input
-						placeholder="SEARCH..."
-						onClick={() => setIsHistoryOpen(true)}
-						onChange={handleInputChange}
-						value={inputData}
-					/>
-					<IoIosCloseCircle
-						className="close-icon"
-						onClick={handleCloseHistory}
-					/>
-					<button onClick={handleTargetWords}>
-						<BsFillSearchHeartFill className="search-icon" />
-					</button>
-				</form>
-			</S.Container>
-			{isHistoryOpen && (
-				<S.SearchHistory>
-					<div>
-						<span>최근 검색어</span>
-						<span className="deleteAll" onClick={handleDeleteEveryWord}>
-							전체 삭제
-						</span>
-					</div>{" "}
-					<hr />
-					<ul>
-						{targetWords.map((word, i) => (
-							<S.EachWord key={i}>
-								{word}
-								<AiOutlineCloseCircle
-									className="delete-icon"
-									onClick={() => handleDeleteEachWord(word)}
-								/>
-							</S.EachWord>
-						))}
-					</ul>
-				</S.SearchHistory>
-			)}
-		</>
-	);
+	if (showSearchResults) {
+		return (
+			<>
+				<S.Container>
+					<form name="value">
+						<input
+							placeholder="SEARCH..."
+							onClick={() => setIsHistoryOpen(true)}
+							onChange={handleInputData}
+							value={inputData}
+						/>
+						<IoIosCloseCircle
+							className="close-icon"
+							onClick={() => setIsHistoryOpen(false)}
+						/>
+						<button onClick={handleTargetWords}>
+							<BsFillSearchHeartFill className="search-icon" />
+						</button>
+					</form>
+				</S.Container>
+				<S.SearchResults>
+					{searchedData &&
+						searchedData.map(data => <OneSerched>{data}</OneSerched>)}
+				</S.SearchResults>
+			</>
+		);
+	} else {
+		return (
+			<>
+				<S.Container>
+					<form name="value">
+						<input
+							placeholder="SEARCH..."
+							onClick={() => setIsHistoryOpen(true)}
+							onChange={handleInputData}
+							value={inputData}
+						/>
+						<IoIosCloseCircle
+							className="close-icon"
+							onClick={() => setIsHistoryOpen(false)}
+						/>
+						<button onClick={handleTargetWords}>
+							<BsFillSearchHeartFill className="search-icon" />
+						</button>
+					</form>
+				</S.Container>
+				{isHistoryOpen && (
+					<S.SearchHistory>
+						<div>
+							<span>최근 검색어</span>
+							<span className="deleteAll" onClick={handleDeleteEveryWord}>
+								전체 삭제
+							</span>
+						</div>{" "}
+						<hr />
+						<ul>
+							{targetWords.map((word, i) => (
+								<S.EachWord key={i}>
+									{word}
+									<AiOutlineCloseCircle
+										className="delete-icon"
+										onClick={() => handleDeleteEachWord(word)}
+									/>
+								</S.EachWord>
+							))}
+						</ul>
+					</S.SearchHistory>
+				)}
+			</>
+		);
+	}
 };
 
 export default SearchBar;
@@ -195,8 +231,35 @@ const EachWord = styled.li`
 	}
 `;
 
+const SearchResults = styled.div`
+	width: 645px;
+	height: 300px;
+	background-color: white;
+	margin: -40px auto;
+	padding: 20px;
+	font-weight: 100;
+	div {
+		display: flex;
+		justify-content: space-between;
+		.deleteAll {
+			font-size: 14px;
+			color: gray;
+		}
+	}
+`;
+
+const OneSerched = styled.div`
+	font-size: 24px;
+	font-weight: 100;
+	margin: 20px 0;
+	width: 600px;
+	display: flex;
+	justify-content: space-between;
+`;
+
 const S = {
 	Container,
 	SearchHistory,
 	EachWord,
+	SearchResults,
 };
