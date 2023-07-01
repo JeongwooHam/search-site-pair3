@@ -95,6 +95,25 @@ const SearchBar = () => {
 		return text.replace(regex, "<span class='highlight'>$1</span>");
 	};
 
+	const [selectedItem, setSelectedItem] = useState(0);
+	const handleKey = e => {
+		if (e.key === "ArrowUp") {
+			if (selectedItem > 0) {
+				setSelectedItem(selectedItem - 1);
+				// setInputData(searchedData[selectedItem - 1]);
+			}
+		} else if (e.key === "ArrowDown") {
+			if (selectedItem < searchedData.length - 1) {
+				setSelectedItem(selectedItem + 1);
+				// setInputData(searchedData[selectedItem + 1]);
+			}
+		} else if (e.key === "Enter") {
+			if (searchedData[selectedItem]) {
+				setInputData(searchedData[selectedItem]);
+			}
+		}
+	};
+
 	// 완전히 일치하는 단어가 있으면 보여주기
 	const perfectMatch = searchedData.find(word => word === inputData);
 
@@ -102,38 +121,22 @@ const SearchBar = () => {
 		setSelectedItem(index);
 	};
 
-	const [selectedItem, setSelectedItem] = useState(0);
-	const handleKey = e => {
-		if (e.key === "ArrowUp") {
-			if (selectedItem > 0) {
-				setSelectedItem(selectedItem - 1);
-				setInputData(searchedData[selectedItem - 1]);
-			}
-		} else if (e.key === "ArrowDown") {
-			if (selectedItem < searchedData.length - 1) {
-				setSelectedItem(selectedItem + 1);
-				setInputData(searchedData[selectedItem + 1]);
-			}
-		}
-	};
-
 	const handleItemClick = data => {
-		handleTargetWords({
-			preventDefault: () => {},
-			target: { value: data },
-		});
+		setInputData(data);
+		fetchSearchResults(data);
 	};
 
 	if (showSearchResults) {
 		return (
 			<>
 				<S.Container>
-					<form name="value">
+					<form name="value" onSubmit={e => e.preventDefault()}>
 						<input
 							placeholder="SEARCH..."
 							onClick={() => setIsContainerOpen(true)}
 							onChange={handleInputChange}
 							value={inputData}
+							onKeyDown={handleKey}
 						/>
 						<IoIosCloseCircle
 							className="close-icon"
@@ -347,7 +350,7 @@ const OneSearched = styled.div`
 	width: 600px;
 	display: flex;
 	justify-content: space-between;
-	background-color: ${props => (props.selected ? "#FFD873F1" : "white")};
+	background-color: ${props => (props.selected ? "#a252c8" : "white")};
 	span.highlight {
 		background-color: #ecdbf4;
 	}
