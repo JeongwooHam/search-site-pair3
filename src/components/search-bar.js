@@ -98,6 +98,32 @@ const SearchBar = () => {
 	// 완전히 일치하는 단어가 있으면 보여주기
 	const perfectMatch = searchedData.find(word => word === inputData);
 
+	const handleMouseOver = index => {
+		setSelectedItem(index);
+	};
+
+	const [selectedItem, setSelectedItem] = useState(0);
+	const handleKey = e => {
+		if (e.key === "ArrowUp") {
+			if (selectedItem > 0) {
+				setSelectedItem(selectedItem - 1);
+				setInputData(searchedData[selectedItem - 1]);
+			}
+		} else if (e.key === "ArrowDown") {
+			if (selectedItem < searchedData.length - 1) {
+				setSelectedItem(selectedItem + 1);
+				setInputData(searchedData[selectedItem + 1]);
+			}
+		}
+	};
+
+	const handleItemClick = data => {
+		handleTargetWords({
+			preventDefault: () => {},
+			target: { value: data },
+		});
+	};
+
 	if (showSearchResults) {
 		return (
 			<>
@@ -131,7 +157,12 @@ const SearchBar = () => {
 						<hr />
 						{searchedData &&
 							searchedData.map((data, index) => (
-								<S.OneSearched key={index}>
+								<S.OneSearched
+									key={index}
+									selected={index === selectedItem}
+									onMouseOver={() => handleMouseOver(index)}
+									onClick={() => handleItemClick(data)}
+								>
 									<span
 										dangerouslySetInnerHTML={{
 											__html: highlightMatchedText(data, inputData),
@@ -312,9 +343,11 @@ const OneSearched = styled.div`
 	font-size: 24px;
 	font-weight: 100;
 	margin: 20px 0;
+	padding: 10px;
 	width: 600px;
 	display: flex;
 	justify-content: space-between;
+	background-color: ${props => (props.selected ? "#FFD873F1" : "white")};
 	span.highlight {
 		background-color: #ecdbf4;
 	}
