@@ -8,6 +8,6 @@ export const getSearchedData = async key => {
 		return res.data;
 	} catch (err) {
 		console.error(err);
-		return ["검색 결과가 없습니다."];
+		return false;
 	}
 };
