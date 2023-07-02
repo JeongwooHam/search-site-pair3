@@ -5,13 +5,10 @@ Project Repository of Pair3
 
 
 ## 🤔CORS 에러란?
-- 승용
+- 정리 노션 주소
+  https://gentle-tin-2c4.notion.site/CORS-Errror-c59549fe8d884f7b81ff8970a7d3d217?pvs=4
 
-- 재원
-
-- 정우
-
-### 팀원
+## 👾팀원
 <table>
   <tbody>
     <tr>
