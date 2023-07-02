@@ -2,14 +2,17 @@ import GlobalStyles from "style/global";
 import "./App.css";
 import MainPage from "pages";
 import WordListProvider from "context/targetwords";
+import InputDataProvider from "context/inputData";
 
 function App() {
 	return (
 		<>
-			<WordListProvider>
-				<GlobalStyles />
-				<MainPage />
-			</WordListProvider>
+			<InputDataProvider>
+				<WordListProvider>
+					<GlobalStyles />
+					<MainPage />
+				</WordListProvider>
+			</InputDataProvider>
 		</>
 	);
 }

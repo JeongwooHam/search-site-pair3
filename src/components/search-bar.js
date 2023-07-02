@@ -1,109 +1,81 @@
 import { styled } from "styled-components";
 import { BsFillSearchHeartFill } from "react-icons/bs";
 import { IoIosCloseCircle } from "react-icons/io";
-import { AiOutlineCloseCircle } from "react-icons/ai";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useWordList } from "context/targetwords";
+import useDebounce from "hooks/useDebounce";
 import { getSearchedData } from "apis/search";
+import RecentlySearchedWordList from "./recentlySearched";
+import SearchResultList from "./searchResults";
+import { useInputData } from "context/inputData";
 
 const SearchBar = () => {
 	const [isContainerOpen, setIsContainerOpen] = useState(false);
 
-	//검색결과 불러오는 함수
-
+	// 검색 결과
 	const [searchedData, setSearchedData] = useState([]);
-	const fetchSearchResults = async query => {
-		const data = await getSearchedData(query);
-		setSearchedData(data);
-		console.log(data);
-	};
+
+	// 검색 결과가 보이는지 여부
+	const [showSearchResults, setShowSearchResults] = useState(false);
 
 	// change 이벤트 함수
-	const [inputData, setInputData] = useState("");
+	const { inputData, setInputData } = useInputData("");
 
 	const handleInputChange = async e => {
+		// input 창에 값을 입력할 경우 키보드 이벤트를 통한 자동완성 끄는 조건문
 		if (isRecommend) {
+			// Backspace 누른 경우 input 값에 빈 문자열이 들어가고, 아닌 경우 input 창에 있는 값이 들어가도록 함
 			const enteredValue =
 				e.nativeEvent.inputType === "deleteContentBackward"
 					? ""
 					: e.nativeEvent.data;
+			// 키보드로 선택된 부분의 인덱스가 0 이상일 때에만 > 입력 값은 자동완성을 통한 추천 단어 + 키보드로 입력 시작한 값
 			selectedItem >= 0 && setInputData(recommendedWord + enteredValue);
+			// 자동완성 기능 끔
 			setIsrecommend(false);
+			// 키보드 이벤트 인덱스를 초기화
 			setSelectedItem(0);
 			return;
 		}
+		// 자동완성 상태가 아닐 때 onChange 함수
 		setInputData(e.target.value);
 		setSelectedItem(0);
 	};
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			console.log("axios 요청", inputData);
-			if (inputData) {
-				// 입력 값이 있다면
-				// 검색 결과를 불러오기
-				fetchSearchResults(inputData);
-				// 검색 결과를 보여주기.
-				setShowSearchResults(true);
-				// 최근 검색 기록을 숨기기
-				// setIsHistoryOpen(false);
-			} else {
-				// 검색 결과를 숨김
-				setShowSearchResults(false);
-				// 최근 검색 기록을 보여줌
-				// setIsHistoryOpen(true);
-			}
-		}, 200);
+	const fetchSearchResults = async () => {
+		console.log("axios 요청", inputData);
+		if (inputData) {
+			const data = await getSearchedData(inputData);
+			console.log(data);
+			setSearchedData(data);
+			// 검색 결과를 보여주기.
+			setShowSearchResults(true);
+		} else {
+			// 검색 결과를 숨김
+			setShowSearchResults(false);
+		}
+	};
 
-		return () => {
-			clearTimeout(timer);
-		};
-	}, [inputData]);
+	// 함수와 delay 시간, 의존성 배열 값을 넘기도록 로직 분리
+	useDebounce(
+		() => {
+			fetchSearchResults();
+		},
+		200,
+		inputData,
+	);
 
 	// submit 이벤트 함수
-	const { targetWords, setTargetWords } = useWordList();
-	const [showSearchResults, setShowSearchResults] = useState(false); //검색결과 상태
-	const handleTargetWords = async e => {
+	const { dispatch } = useWordList();
+	const handleTargetWords = e => {
 		e.preventDefault();
 		if (inputData) {
-			let newTargetWords = [...targetWords];
-			// 입력받은 값이 예전에 검색된 적이 있다면 중복하여 추가하지 않고 맨 앞으로 이동시키기
-			if (newTargetWords.includes(inputData)) {
-				newTargetWords = newTargetWords.filter(word => word !== inputData);
-			}
-			newTargetWords.unshift(inputData);
-			if (newTargetWords.length >= 5) {
-				setTargetWords(newTargetWords.slice(0, 5));
-			} else {
-				setTargetWords(newTargetWords);
-			}
+			dispatch({ type: "ADD_WORD", payload: inputData });
 			setInputData("");
 		}
 		// 검색 완료 후에는 검색 결과를 숨기고 최근 검색 기록을 보여줌
 		setShowSearchResults(false);
 		// setIsHistoryOpen(true);
-	};
-
-	// 검색 기록 배열 확인용
-	useEffect(() => {
-		console.log(targetWords);
-	}, [targetWords]);
-
-	// 최근 검색어 개별 삭제
-	const handleDeleteEachWord = target => {
-		const newTargetWords = [...targetWords].filter(word => word !== target);
-		setTargetWords(newTargetWords);
-	};
-
-	// 최근 검색어 전체 삭제
-	const handleDeleteEveryWord = () => {
-		setTargetWords([]);
-	};
-
-	// 텍스트 하이라이트
-	const highlightMatchedText = (text, keyword) => {
-		const regex = new RegExp(`(${keyword})`, "gi");
-		return text.replace(regex, "<span class='highlight'>$1</span>");
 	};
 
 	// 추천 검색어 스크롤 시 자동 완성 모드 상태
@@ -112,150 +84,66 @@ const SearchBar = () => {
 	const [selectedItem, setSelectedItem] = useState(0);
 	// 자동완성 단어
 	const [recommendedWord, setRecommendedWord] = useState("");
+
+	const keyboardFunction = (bool, index) => {
+		setIsrecommend(bool);
+		setSelectedItem(index);
+		setRecommendedWord(searchedData[index]);
+	};
 	const handleKey = e => {
 		if (e.key === "ArrowUp") {
 			if (selectedItem > 0) {
-				setIsrecommend(true);
-				setSelectedItem(selectedItem - 1);
-				setRecommendedWord(searchedData[selectedItem - 1]);
-				// setInputData(searchedData[selectedItem - 1]);
+				keyboardFunction(true, selectedItem - 1);
 			}
 		} else if (e.key === "ArrowDown") {
 			if (selectedItem < searchedData.length - 1) {
-				setIsrecommend(true);
-				setSelectedItem(selectedItem + 1);
-				setRecommendedWord(searchedData[selectedItem + 1]);
-				// setInputData(searchedData[selectedItem + 1]);
+				keyboardFunction(true, selectedItem + 1);
 			}
 		} else if (e.key === "Enter") {
 			if (searchedData[selectedItem]) {
 				setInputData(searchedData[selectedItem]);
+
 				setIsrecommend(false);
 				setRecommendedWord("");
 			}
 		}
 	};
 
-	// 완전히 일치하는 단어가 있으면 보여주기
-	let perfectMatch;
-	if (searchedData) {
-		perfectMatch = searchedData.find(word => word === inputData);
-	}
-
-	const handleMouseOver = index => {
-		setSelectedItem(index);
-	};
-
-	const handleItemClick = data => {
-		setInputData(data);
-		fetchSearchResults(data);
-	};
-
-	if (showSearchResults) {
-		return (
-			<>
-				<S.Container>
-					<form name="value" onSubmit={e => e.preventDefault()}>
-						<input
-							placeholder="SEARCH..."
-							onClick={() => setIsContainerOpen(true)}
-							onChange={handleInputChange}
-							value={isRecommend ? recommendedWord : inputData}
-							onKeyDown={handleKey}
-						/>
-						<IoIosCloseCircle
-							className="close-icon"
-							onClick={() => {
-								setIsContainerOpen(false);
-								setInputData("");
-							}}
-						/>
-						<button onClick={handleTargetWords}>
-							<BsFillSearchHeartFill className="search-icon" />
-						</button>
-					</form>
-				</S.Container>
-				{isContainerOpen && (
-					<S.SearchResults>
-						{perfectMatch && (
-							<S.OneSearched>
-								<span className="highlight">{perfectMatch}</span>
-							</S.OneSearched>
-						)}
-						{searchedData ? (
-							<>
-								<div>
-									<span>추천 검색어</span>
-								</div>
-								<hr />
-								{searchedData.map((data, index) => (
-									<S.OneSearched
-										key={index}
-										selected={index === selectedItem}
-										onMouseOver={() => handleMouseOver(index)}
-										onClick={() => handleItemClick(data)}
-									>
-										<span
-											dangerouslySetInnerHTML={{
-												__html: highlightMatchedText(data, inputData),
-											}}
-										/>
-									</S.OneSearched>
-								))}
-							</>
-						) : (
-							<NoResult>검색 결과가 없습니다.</NoResult>
-						)}
-					</S.SearchResults>
-				)}
-			</>
-		);
-	} else {
-		return (
-			<>
-				<S.Container>
-					<form name="value">
-						<input
-							placeholder="SEARCH..."
-							onClick={() => setIsContainerOpen(true)}
-							onChange={handleInputChange}
-							value={inputData}
-						/>
-						<IoIosCloseCircle
-							className="close-icon"
-							onClick={() => setIsContainerOpen(false)}
-						/>
-						<button onClick={handleTargetWords}>
-							<BsFillSearchHeartFill className="search-icon" />
-						</button>
-					</form>
-				</S.Container>
-
-				{isContainerOpen && (
-					<S.SearchHistory>
-						<div>
-							<span>최근 검색어</span>
-							<span className="deleteAll" onClick={handleDeleteEveryWord}>
-								전체 삭제
-							</span>
-						</div>
-						<hr />
-						<ul>
-							{targetWords.map((word, i) => (
-								<S.EachWord key={i}>
-									{word}
-									<AiOutlineCloseCircle
-										className="delete-icon"
-										onClick={() => handleDeleteEachWord(word)}
-									/>
-								</S.EachWord>
-							))}
-						</ul>
-					</S.SearchHistory>
-				)}
-			</>
-		);
-	}
+	return (
+		<>
+			<S.Container>
+				<form name="value" onSubmit={e => e.preventDefault()}>
+					<input
+						placeholder="SEARCH..."
+						onClick={() => setIsContainerOpen(true)}
+						onChange={handleInputChange}
+						value={isRecommend ? recommendedWord : inputData}
+						onKeyDown={handleKey}
+					/>
+					<IoIosCloseCircle
+						className="close-icon"
+						onClick={() => {
+							setIsContainerOpen(false);
+							setInputData("");
+						}}
+					/>
+					<button onClick={handleTargetWords}>
+						<BsFillSearchHeartFill className="search-icon" />
+					</button>
+				</form>
+			</S.Container>
+			{isContainerOpen &&
+				(showSearchResults ? (
+					<SearchResultList
+						selectedItem={selectedItem}
+						searchedData={searchedData}
+						setSelectedItem={setSelectedItem}
+					/>
+				) : (
+					<RecentlySearchedWordList />
+				))}
+		</>
+	);
 };
 
 export default SearchBar;
@@ -323,86 +211,6 @@ const Container = styled.div`
 	}
 `;
 
-const SearchHistory = styled.div`
-	width: 645px;
-	height: 300px;
-	background-color: white;
-	margin: -40px auto;
-	padding: 20px;
-	font-weight: 100;
-	div {
-		display: flex;
-		justify-content: space-between;
-		.deleteAll {
-			font-size: 14px;
-			color: gray;
-			&:hover {
-				color: #a252c8;
-				font-weight: bold;
-			}
-		}
-	}
-`;
-
-const EachWord = styled.li`
-	font-size: 24px;
-	font-weight: 100;
-	margin: 20px 0;
-	width: 600px;
-	display: flex;
-	justify-content: space-between;
-	.delete-icon {
-		width: 15px;
-		height: 15px;
-		margin-top: 5px;
-		color: #a252c8;
-	}
-`;
-
-const SearchResults = styled.div`
-	width: 645px;
-	background-color: white;
-	margin: -40px auto;
-	padding: 20px;
-	font-weight: 100;
-	div {
-		display: flex;
-		justify-content: space-between;
-		.deleteAll {
-			font-size: 14px;
-			color: gray;
-		}
-	}
-`;
-
-const OneSearched = styled.div`
-	font-size: 24px;
-	font-weight: 100;
-	margin: 20px 0;
-	padding: 10px;
-	width: 600px;
-	display: flex;
-	justify-content: space-between;
-	background-color: ${props => (props.selected ? "#a252c8" : "white")};
-	background-color: ${props => (props.selected ? "#a252c8" : "white")};
-	span.highlight {
-		background-color: #ecdbf4;
-	}
-`;
-
-const NoResult = styled.div`
-	font-size: 24px;
-	font-weight: 100;
-	margin: 20px 0;
-	padding: 10px;
-	width: 600px;
-`;
-
 const S = {
 	Container,
-	SearchHistory,
-	EachWord,
-	SearchResults,
-	OneSearched,
-	NoResult,
 };
