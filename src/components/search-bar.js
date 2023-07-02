@@ -22,7 +22,18 @@ const SearchBar = () => {
 	const [inputData, setInputData] = useState("");
 
 	const handleInputChange = async e => {
+		if (isRecommend) {
+			const enteredValue =
+				e.nativeEvent.inputType === "deleteContentBackward"
+					? ""
+					: e.nativeEvent.data;
+			selectedItem >= 0 && setInputData(recommendedWord + enteredValue);
+			setIsrecommend(false);
+			setSelectedItem(0);
+			return;
+		}
 		setInputData(e.target.value);
+		setSelectedItem(0);
 	};
 
 	useEffect(() => {
@@ -95,27 +106,41 @@ const SearchBar = () => {
 		return text.replace(regex, "<span class='highlight'>$1</span>");
 	};
 
+	// 추천 검색어 스크롤 시 자동 완성 모드 상태
+	const [isRecommend, setIsrecommend] = useState(false);
+	// 키보드로 선택된 값
 	const [selectedItem, setSelectedItem] = useState(0);
+	// 자동완성 단어
+	const [recommendedWord, setRecommendedWord] = useState("");
 	const handleKey = e => {
 		if (e.key === "ArrowUp") {
 			if (selectedItem > 0) {
+				setIsrecommend(true);
 				setSelectedItem(selectedItem - 1);
+				setRecommendedWord(searchedData[selectedItem - 1]);
 				// setInputData(searchedData[selectedItem - 1]);
 			}
 		} else if (e.key === "ArrowDown") {
 			if (selectedItem < searchedData.length - 1) {
+				setIsrecommend(true);
 				setSelectedItem(selectedItem + 1);
+				setRecommendedWord(searchedData[selectedItem + 1]);
 				// setInputData(searchedData[selectedItem + 1]);
 			}
 		} else if (e.key === "Enter") {
 			if (searchedData[selectedItem]) {
 				setInputData(searchedData[selectedItem]);
+				setIsrecommend(false);
+				setRecommendedWord("");
 			}
 		}
 	};
 
 	// 완전히 일치하는 단어가 있으면 보여주기
-	const perfectMatch = searchedData.find(word => word === inputData);
+	let perfectMatch;
+	if (searchedData) {
+		perfectMatch = searchedData.find(word => word === inputData);
+	}
 
 	const handleMouseOver = index => {
 		setSelectedItem(index);
@@ -135,12 +160,15 @@ const SearchBar = () => {
 							placeholder="SEARCH..."
 							onClick={() => setIsContainerOpen(true)}
 							onChange={handleInputChange}
-							value={inputData}
+							value={isRecommend ? recommendedWord : inputData}
 							onKeyDown={handleKey}
 						/>
 						<IoIosCloseCircle
 							className="close-icon"
-							onClick={() => setIsContainerOpen(false)}
+							onClick={() => {
+								setIsContainerOpen(false);
+								setInputData("");
+							}}
 						/>
 						<button onClick={handleTargetWords}>
 							<BsFillSearchHeartFill className="search-icon" />
@@ -154,25 +182,30 @@ const SearchBar = () => {
 								<span className="highlight">{perfectMatch}</span>
 							</S.OneSearched>
 						)}
-						<div>
-							<span>추천 검색어</span>
-						</div>
-						<hr />
-						{searchedData &&
-							searchedData.map((data, index) => (
-								<S.OneSearched
-									key={index}
-									selected={index === selectedItem}
-									onMouseOver={() => handleMouseOver(index)}
-									onClick={() => handleItemClick(data)}
-								>
-									<span
-										dangerouslySetInnerHTML={{
-											__html: highlightMatchedText(data, inputData),
-										}}
-									/>
-								</S.OneSearched>
-							))}
+						{searchedData ? (
+							<>
+								<div>
+									<span>추천 검색어</span>
+								</div>
+								<hr />
+								{searchedData.map((data, index) => (
+									<S.OneSearched
+										key={index}
+										selected={index === selectedItem}
+										onMouseOver={() => handleMouseOver(index)}
+										onClick={() => handleItemClick(data)}
+									>
+										<span
+											dangerouslySetInnerHTML={{
+												__html: highlightMatchedText(data, inputData),
+											}}
+										/>
+									</S.OneSearched>
+								))}
+							</>
+						) : (
+							<NoResult>검색 결과가 없습니다.</NoResult>
+						)}
 					</S.SearchResults>
 				)}
 			</>
@@ -351,9 +384,18 @@ const OneSearched = styled.div`
 	display: flex;
 	justify-content: space-between;
 	background-color: ${props => (props.selected ? "#a252c8" : "white")};
+	background-color: ${props => (props.selected ? "#a252c8" : "white")};
 	span.highlight {
 		background-color: #ecdbf4;
 	}
+`;
+
+const NoResult = styled.div`
+	font-size: 24px;
+	font-weight: 100;
+	margin: 20px 0;
+	padding: 10px;
+	width: 600px;
 `;
 
 const S = {
@@ -362,4 +404,5 @@ const S = {
 	EachWord,
 	SearchResults,
 	OneSearched,
+	NoResult,
 };
