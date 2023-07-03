@@ -17,9 +17,36 @@ Vercel과 Glitch를 통해 프론트엔드 코드와 백엔드 코드를 따로 
 - BACK-END
 : https://cloudy-stone-juice.glitch.me/
 
-## 🗂️ 프로젝트 기록
+## 📋 프로젝트 기록
 프로젝트 구현 일지 및 API 최적화 방법, CORS 에러에 대해 공부한 후 작성하였습니다. <br/>
 https://gentle-tin-2c4.notion.site/3-7f96b641febc4d36b1c2d365ca724406?pvs=4
+
+## 🗂️ 폴더 구조
+<details>
+<summary>Folder Structure</summary>
+<div markdown="1">
+<blockquote>
+📦src<br/>
+ ┣ 📂apis<br/>
+ ┃ ┣ 📜@core.js<br/>
+ ┃ ┗ 📜search.js<br/>
+ ┣ 📂components<br/>
+ ┃ ┣ 📜recentlySearched.js<br/>
+ ┃ ┣ 📜search-bar.js<br/>
+ ┃ ┣ 📜searchResults.js<br/>
+ ┣ 📂context<br/>
+ ┃ ┣ 📜inputData.js<br/>
+ ┃ ┗ 📜targetwords.js<br/>
+ ┣ 📂hooks<br/>
+ ┃ ┗ 📜useDebounce.js<br/>
+ ┣ 📂pages<br/>
+ ┃ ┗ 📜index.js<br/>
+ ┣ 📂style <br/>
+ ┃ ┗ 📜global.js <br/>
+ ┣ ...
+</blockquote>
+</div>
+</details>
 
 ## 👾 팀원
 <table>
