@@ -1,14 +1,26 @@
 # search-site-pair3
-Project Repository of Pair3
 
-... (추후 작성 예정)
+<img src="https://github.com/FrontEnd-Team3/search-site-pair3/assets/123251211/62fc9ffa-ca74-4efa-90ae-ce44faa4a917" width="500px"/>
+<br/>
+json-server로 구현된 API를 활용한 검색어 조회 사이트입니다. <br/>
+debouncing 기능을 활용하여 API 요청을 최적화하고,<br/>
+local storage를 사용하여 새로고침을 하여도 검색 기록이 유지될 수 있도록 하였습니다.<br/>
+또한 추후 프론트엔드 코드와 백엔드 코드가 개별적으로 업데이트 되거나 재사용 될 가능성을 염두에 두고,<br/>
+백엔드의 중요한 비즈니스 로직 및 데이터 로직을 안전하게 보호하면서 <br/>
+사용자 인터페이스와 관련된 보안상 중요하지 않은 부분만 프론트엔드 코드에 분리할 수 있도록 <br/>
+Vercel과 Glitch를 통해 프론트엔드 코드와 백엔드 코드를 따로 배포해보았습니다. <br/>
 
 
-## 🤔CORS 에러란?
-- 정리 노션 주소
-  https://gentle-tin-2c4.notion.site/CORS-Errror-c59549fe8d884f7b81ff8970a7d3d217?pvs=4
+## 📌 배포 링크
+- FRONT-END
+: https://search-site-pair3-xayg-git-refactoring-pair2.vercel.app/
+- BACK-END
+: https://cloudy-stone-juice.glitch.me/
 
-## 👾팀원
+## 🗂️ 프로젝트 기록
+https://gentle-tin-2c4.notion.site/3-7f96b641febc4d36b1c2d365ca724406?pvs=4
+
+## 👾 팀원
 <table>
   <tbody>
     <tr>
