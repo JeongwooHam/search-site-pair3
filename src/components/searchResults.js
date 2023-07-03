@@ -31,30 +31,32 @@ const SearchResultList = ({ selectedItem, searchedData, setSelectedItem }) => {
 						<span className="highlight">{perfectMatch}</span>
 					</S.OneSearched>
 				)}
-				{searchedData ? (
-					<>
-						<div>
-							<span>추천 검색어</span>
-						</div>
-						<hr />
-						{searchedData.map((data, index) => (
-							<S.OneSearched
-								key={index}
-								selected={index === selectedItem}
-								onMouseOver={() => handleMouseOver(index)}
-								onClick={() => handleItemClick(data)}
-							>
-								<span
-									dangerouslySetInnerHTML={{
-										__html: highlightMatchedText(data, inputData),
-									}}
-								/>
-							</S.OneSearched>
-						))}
-					</>
-				) : (
-					<NoResult>검색 결과가 없습니다.</NoResult>
-				)}
+				<>
+					{searchedData ? (
+						<>
+							<div>
+								<span>추천 검색어</span>
+							</div>
+							<hr />
+							{searchedData.map((data, index) => (
+								<S.OneSearched
+									key={index}
+									selected={index === selectedItem}
+									onMouseOver={() => handleMouseOver(index)}
+									onClick={() => handleItemClick(data)}
+								>
+									<span
+										dangerouslySetInnerHTML={{
+											__html: highlightMatchedText(data, inputData),
+										}}
+									/>
+								</S.OneSearched>
+							))}
+						</>
+					) : (
+						<NoResult>검색 결과가 없습니다.</NoResult>
+					)}
+				</>
 			</S.SearchResults>
 		</>
 	);
@@ -63,6 +65,8 @@ const SearchResultList = ({ selectedItem, searchedData, setSelectedItem }) => {
 export default SearchResultList;
 
 const SearchResults = styled.div`
+	height: 300px;
+	overflow-y: scroll;
 	width: 645px;
 	background-color: white;
 	margin: -40px auto;
