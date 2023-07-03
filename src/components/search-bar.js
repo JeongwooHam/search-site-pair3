@@ -138,6 +138,7 @@ const SearchBar = () => {
 						selectedItem={selectedItem}
 						searchedData={searchedData}
 						setSelectedItem={setSelectedItem}
+						setShowSearchResults={setShowSearchResults}
 					/>
 				) : (
 					<RecentlySearchedWordList />

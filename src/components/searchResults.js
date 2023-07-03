@@ -1,7 +1,13 @@
 import { useInputData } from "context/inputData";
+import { useWordList } from "context/targetwords";
 import { styled } from "styled-components";
 
-const SearchResultList = ({ selectedItem, searchedData, setSelectedItem }) => {
+const SearchResultList = ({
+	selectedItem,
+	searchedData,
+	setSelectedItem,
+	setShowSearchResults,
+}) => {
 	const { inputData, setInputData } = useInputData();
 	// 텍스트 하이라이트
 	const highlightMatchedText = (text, keyword) => {
@@ -23,11 +29,23 @@ const SearchResultList = ({ selectedItem, searchedData, setSelectedItem }) => {
 		setInputData(data);
 	};
 
+	const { dispatch } = useWordList();
+	const handleTargetWords = e => {
+		e.preventDefault();
+		if (inputData) {
+			dispatch({ type: "ADD_WORD", payload: inputData });
+			setInputData("");
+		}
+		// 검색 완료 후에는 검색 결과를 숨기고 최근 검색 기록을 보여줌
+		setShowSearchResults(false);
+		// setIsHistoryOpen(true);
+	};
+
 	return (
 		<>
 			<S.SearchResults>
 				{perfectMatch && (
-					<S.OneSearched>
+					<S.OneSearched onClick={handleTargetWords}>
 						<span className="highlight">{perfectMatch}</span>
 					</S.OneSearched>
 				)}
