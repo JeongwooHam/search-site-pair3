@@ -7,6 +7,9 @@ const GlobalStyles = createGlobalStyle`
         box-sizing: border-box;
         list-style: none;
     }
+    html ::-webkit-scrollbar {
+        display: none;
+    }
     body{
         background-color: #ECDBF4;
     }
