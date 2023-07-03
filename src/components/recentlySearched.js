@@ -24,15 +24,19 @@ const RecentlySearchedWordList = () => {
 			</div>
 			<hr />
 			<ul>
-				{targetWords.map((word, i) => (
-					<S.EachWord key={i}>
-						{word}
-						<AiOutlineCloseCircle
-							className="delete-icon"
-							onClick={() => handleDeleteEachWord(word)}
-						/>
-					</S.EachWord>
-				))}
+				{targetWords.length === 0 ? (
+					<S.NoResult>검색 기록이 없습니다.</S.NoResult>
+				) : (
+					targetWords.map((word, i) => (
+						<S.EachWord key={i}>
+							{word}
+							<AiOutlineCloseCircle
+								className="delete-icon"
+								onClick={() => handleDeleteEachWord(word)}
+							/>
+						</S.EachWord>
+					))
+				)}
 			</ul>
 		</S.SearchHistory>
 	);
@@ -75,7 +79,16 @@ const EachWord = styled.li`
 		color: #a252c8;
 	}
 `;
+const NoResult = styled.div`
+	font-size: 24px;
+	font-weight: 100;
+	margin: 20px 0;
+	padding: 10px;
+	width: 600px;
+`;
+
 const S = {
 	SearchHistory,
 	EachWord,
+	NoResult,
 };
