@@ -1,5 +1,10 @@
 # search-site-pair3
 
+### 💡 개인 회고
+[CSS, API Call](https://velog.io/@hamjw0122/%ED%9A%8C%EA%B3%A0-%EA%B2%80%EC%83%89%EC%96%B4-%EC%A1%B0%ED%9A%8C-%EC%82%AC%EC%9D%B4%ED%8A%B8-1) <br/>
+[useContext, useReducer](https://velog.io/@hamjw0122/%ED%9A%8C%EA%B3%A0-%EA%B2%80%EC%83%89%EC%96%B4-%EC%A1%B0%ED%9A%8C-%EC%82%AC%EC%9D%B4%ED%8A%B8-2)
+
+<hr/>
 <img src="https://github.com/FrontEnd-Team3/search-site-pair3/assets/123251211/62fc9ffa-ca74-4efa-90ae-ce44faa4a917" width="500px"/>
 <br/>
 json-server로 구현된 API를 활용한 검색어 조회 사이트입니다. <br/>
